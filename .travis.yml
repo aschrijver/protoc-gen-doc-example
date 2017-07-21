@@ -3,6 +3,7 @@ before_install:
   - wget -nv http://download.opensuse.org/repositories/home:estan:protoc-gen-doc/xUbuntu_14.04/Release.key -O Release.key
   - sudo apt-key add - < Release.key
   - sudo apt-get update
+  - sudo apt-get install protobuf-compiler
   - sudo apt-get --allow-unauthenticated install protoc-gen-doc
   - protoc --doc_out=html,index.html:doc *.proto
 language: node_js
