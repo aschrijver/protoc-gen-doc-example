@@ -5,10 +5,20 @@ before_install:
   - sudo apt-get update
   - sudo apt-get install protobuf-compiler
   - sudo apt-get --allow-unauthenticated install protoc-gen-doc
-  - protoc --doc_out=html,index.html:doc *.proto
+  - mkdir build && mkdir build/html
+  - cp docgen/stylesheet.css build/html
+  - protoc --doc_out=html,index.html:build/html *.proto
 language: node_js
 node_js:
   - "6"
   - "4"
   - "0.12"
   - "0.10"
+deploy:
+  provider: pages
+  skip_cleanup: true
+  name: datproject
+  local_dir: build/html
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  on:
+    branch: master
