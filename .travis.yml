@@ -1,6 +1,5 @@
 before_install:
-  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_16.10/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
-  - sudo apt-get update
+  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_14.04/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
   - sudo apt-get install protoc-gen-doc
   - protoc --doc_out=html,index.html:doc *.proto
 language: node_js
