@@ -1,32 +1,114 @@
-// wire format is <len>(<header><message>)
-// header is a varint, channel << 4 | <4-bit-type>
+/**
+ * The SLEEP format is designed to allow for sparse replication, meaning you
+ * can efficiently download only the metadata and data required to resolve a
+ * single byte region of a single file, which makes Dat suitable for a wide
+ * variety of streaming, real time and large dataset use cases.
+ *
+ * To take advantage of this, Dat includes a network protocol. It is message
+ * based and stateless, making it possible to implement on a variety of network
+ * transport protocols including UDP and TCP.
+ *
+ * Both metadata and content registers in SLEEP share the exact same
+ * replication protocol.
+ *
+ * Individual messages are encoded using Protocol Buffers and there are ten
+ * message types in total.
+ *
+ * Over the wire messages are packed in the following lightweight
+ * container format:
+ *
+ * <varint - length of rest of message>
+ *   <varint - header>
+ *   <message>
+ *
+ * The header value is a single varint that has two pieces of information,
+ * the integer type that declares a 4-bit message type (used below), and a
+ * channel identifier, 0 for metadata and 1 for content.
+ *
+ * To generate this varint, you bitshift the 4-bit type integer onto the end of
+ * the channel identifier, e.g. channel << 4 | <4-bit-type>.
+ */
 
-// type=0, should be the first message sent on a channel
+ /**
+  * Type 0, should be the first message sent on a channel.
+  */
 message Feed {
+
+  /**
+   * A BLAKE2b keyed hash of the string 'hypercore' using the public key of
+   * the metadata register as the key
+   */
   required bytes discoveryKey = 1;
+
+  /** 32 bytes of random binary data, used in our encryption scheme */
   optional bytes nonce = 2;
 }
 
-// type=1, overall connection handshake. should be send just after the feed message on the first channel only
+/*
+ * Type 1. Overall connection handshake. Should be sent just after the
+ * Feed message on the first channel only (metadata).
+ */
 message Handshake {
+
+  /**
+   * 32 byte random data used as a identifier for this peer on the network,
+   * useful for checking if you are connected to yourself or another peer
+   * more than once
+   */
   optional bytes id = 1;
-  optional bool live = 2; // keep the connection open forever? both ends have to agree
+
+  /**
+   * Whether or not you want to operate in live (continuous) replication mode
+   * or end after the initial sync. Both ends must agree to keep the
+   * connection open
+   */
+  optional bool live = 2;
+
+  /** User-specific metadata encoded as a byte sequence */
   optional bytes userData = 3;
+
+  /** List of extensions that are supported on this Feed */
   repeated string extensions = 4;
 }
 
-// type=2, message indicating state changes etc.
-// initial state for uploading/downloading is true
-// if both ends are not downloading and not live it is safe to consider the stream ended
+/**
+ * Type 2. Message indicating state changes. Used to indicate whether you are
+ * uploading and/or downloading.
+ *
+ * Initial state for uploading / downloading is true.
+ * If both ends are not downloading and not live it is safe to consider
+ * the stream ended.
+ */
 message Info {
   optional bool uploading = 1;
   optional bool downloading = 2;
 }
 
-// type=3, what do we have?
+/*
+ * Type 3. How you tell the other peer what chunks of data you have or don't
+ * have.
+ *
+ * You should only send Have messages to peers who have expressed interest in
+ * this region by sending Want messages.
+ */
 message Have {
+
+  /**
+   * If you only specify start, it means you are telling the other side you
+   * only have 1 chunk at the position at the value in start
+   */
   required uint64 start = 1;
+
+  /**
+   * If you specify length, you can describe a range of values that you have
+   * all of, starting from start
+   */
   optional uint64 length = 2 [default = 1]; // defaults to 1
+
+  /**
+   * If you would like to send a range of sparse data about haves/don't haves
+   * via bitfield, relative to start
+   */
   optional bytes bitfield = 3;
 }
 
