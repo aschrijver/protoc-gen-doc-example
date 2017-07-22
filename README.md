@@ -71,6 +71,19 @@ Generates this output:
 
 **Con's**:
 - Markdown-only format support. Other formats will be polluted with markdown commands
+- Not currently a viable option: Markdown for Messages incorrectly rendered by build-in template
+
+### Custom markdown template
+
+With a custom markdown template and adding a newline after the anchor before message title and enum title.
+
+Invoking with the custom [markdown.mustache](docgen/markdown.mustache) template:
+```
+  protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
+```
+
+Generates this output:
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md
 
 ## Conclusion
 
