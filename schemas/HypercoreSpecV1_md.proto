@@ -1,8 +1,9 @@
 /**
- * The **SLEEP** format is designed to allow for sparse replication, meaning you
- * can efficiently download only the metadata and data required to resolve a
- * single byte region of a single file, which makes Dat suitable for a wide
- * variety of streaming, real time and large dataset use cases.
+ * The **SLEEP** format is designed by the [Dat Project](https://datproject.org) 
+ * to allow for sparse replication, meaning you can efficiently download
+ * only the metadata and data required to resolve a single byte region 
+ * of a single file, which makes Dat suitable for a wide variety of streaming,
+ * _real-time_ and large dataset use cases.
  *
  * To take advantage of this, Dat includes a _network protocol_. It is message
  * based and stateless, making it possible to implement on a variety of network
@@ -13,6 +14,8 @@
  *
  * Individual messages are encoded using Protocol Buffers and there are ten
  * message types in total.
+ *
+ * ### Wire Protocol
  *
  * Over the wire messages are packed in the following lightweight
  * container format:
@@ -29,6 +32,28 @@
  *
  * To generate this varint, you bitshift the 4-bit type integer onto the end of
  * the channel identifier, e.g. channel << 4 | <4-bit-type>.
+ *
+ * ### Using in NodeJS
+ *
+ * The `protocol-bufers` package offers an intuitive javascript API, so you need
+ * not worry about low-level protocol concepts.
+ * 
+ * This example demonstrates how you create a feed and start streaming:
+ *
+ * ```javascript
+ *   var protocol = require('hypercore-protocol')
+ *   var stream = protocol()
+ *   
+ *   // open a feed specified by a 32 byte key
+ *   var feed = stream.feed(Buffer('deadbeefdeadbeefdeadbeefdeadbeef'))
+ *   
+ *   feed.request({block: 42})
+ *   feed.on('data', function (message) {
+ *     console.log(message) // contains message.index and message.value
+ *   })
+ *   
+ *   stream.pipe(anotherStream).pipe(stream)
+ * ```
  */
 
  /**
