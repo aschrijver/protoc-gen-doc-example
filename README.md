@@ -10,6 +10,8 @@ Stream that implements the [hypercore](https://github.com/mafintosh/hypercore) p
 using [protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc), and to provide examples/instruction for users, 
 plus to demonstrate some existing bugs in the generator.
 
+**The most complete documentation can be found in the markdown examples**
+
 For the **_real thing_** go to original [hypercore-protocol](https://github.com/mafintosh/hypercore-protocol) github repo.
 
 ## Documentation generation

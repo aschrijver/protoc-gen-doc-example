@@ -56,9 +56,16 @@
  * ```
  */
 
- /**
-  * Type 0, should be the first message sent on a channel.
-  */
+/**
+ * Type 0. Should be the first message sent on a channel.
+ *
+ * ```javascript
+ * message Feed {
+ *   required bytes discoveryKey = 1;
+ *   optional bytes nonce = 2;
+ * }
+ * ```
+ */
 message Feed {
 
   /**
@@ -71,9 +78,18 @@ message Feed {
   optional bytes nonce = 2;
 }
 
-/*
+/**
  * Type 1. Overall connection handshake. Should be sent just after the
  * Feed message on the first channel only (metadata).
+ *
+ * ```javascript
+ * message Handshake {
+ *   optional bytes id = 1;
+ *   optional bool live = 2;
+ *   optional bytes userData = 3;
+ *   repeated string extensions = 4;
+ * }
+ * ```
  */
 message Handshake {
 
@@ -105,18 +121,56 @@ message Handshake {
  * Initial state for uploading / downloading is true.
  * If both ends are not downloading and not live it is safe to consider
  * the stream ended.
+ *
+ * ```javascript
+ * message Info {
+ *   optional bool uploading = 1;
+ *   optional bool downloading = 2;
+ * }
+ * ```
  */
 message Info {
   optional bool uploading = 1;
   optional bool downloading = 2;
 }
 
-/*
+/**
  * Type 3. How you tell the other peer what chunks of data you have or don't
  * have.
  *
  * You should only send Have messages to peers who have expressed interest in
  * this region by sending Want messages.
+ *
+ * ```javascript 
+ * message Have {
+ *   required uint64 start = 1;
+ *   optional uint64 length = 2 [default = 1];
+ *   optional bytes bitfield = 3;
+ * }
+ * ```
+ * 
+ * When sending bitfields you must run length encode them. The encoded bitfield 
+ * is a series of compressed and uncompressed bit sequences. All sequences start with 
+ * a header that is a varint.
+ * 
+ * If the last bit is set in the varint (it is an odd number) then a header represents 
+ * a compressed bit sequence.
+ * 
+ * ```javascript
+ * compressed-sequence = varint(
+ *   byte-length-of-sequence
+ *   << 2 | bit << 1 | 1
+ * )
+ * ```
+ * 
+ * If the last bit is not set then a header represents an non compressed sequence
+ * 
+ * ```javascript
+ * uncompressed-sequence = varint(
+ *   byte-length-of-bitfield << 1 | 0
+ * ) + (bitfield)
+ * ```
+ * 
  */
 message Have {
 
@@ -139,41 +193,146 @@ message Have {
   optional bytes bitfield = 3;
 }
 
-
-// type=4, what did we lose?
+/**
+ * Type 4. How you communicate that you deleted or removed a chunk you used to have.
+ *
+ * ```javascript
+ * message Unhave {
+ *   required uint64 start = 1;
+ *   optional uint64 length = 2 [default = 1];
+ * }
+ * ```
+ */
 message Unhave {
   required uint64 start = 1;
-  optional uint64 length = 2 [default = 1]; // defaults to 1
+  optional uint64 length = 2 [default = 1];
 }
 
-// type=5, what do we want? remote should start sending have messages in this range
+/**
+ * Type 5. How you ask the other peer to subscribe you to Have messages for a region of chunks.
+ *
+ * 'What do we want?' Remote should start sending `Have` messages in this range.
+ *
+ * ```javascript
+ * message Want {
+ *   required uint64 start = 1;
+ *   optional uint64 length = 2;
+ * }
+ * ```
+ */
 message Want {
   required uint64 start = 1;
-  optional uint64 length = 2; // defaults to Infinity or feed.length (if not live)
+
+  /** Defaults to `Infinity` or `feed.length` (if not `live`) **
+  optional uint64 length = 2;
 }
 
-// type=6, what don't we want anymore?
+/**
+ * Type 6. How you ask to unsubscribe from `Have` messages for a region of chunks from the 
+ * other peer. You should only Unwant previously Wanted regions, but if you do `Unwant` 
+ * something that hasn't been Wanted it won't have any effect. 
+ * 
+ * The `length` value defaults to `Infinity` or `feed.length` (if not `live`).
+ * 
+ * ```javascript
+ * message Unwant {
+ *   required uint64 start = 1;
+ *   optional uint64 length = 2;
+ * }
+ * ```
+ */
 message Unwant {
   required uint64 start = 1;
-  optional uint64 length = 2; // defaults to Infinity or feed.length (if not live)
+
+  /** Defaults to `Infinity` or `feed.length` (if not `live`) **
+  optional uint64 length = 2;
 }
 
-// type=7, ask for data
+/**
+ * Type 7. Request a single chunk of data.
+ *
+ * The nodes bitfield is an optional optimization to reduce the amount of duplicate nodes 
+ * exchanged during the replication lifecycle. It indicates which parents you have or don't 
+ * have. You have a maximum of 64 parents you can specify. Because `uint64` in Protocol Buffers
+ * is implemented as a `varint`, over the wire this does not take up 64 bits in most cases.
+ * 
+ * The first bit is reserved to signify whether or not you need a signature in response. 
+ * The rest of the bits represent whether or not you have (`1`) or don't have (`0`) the 
+ * information at this node already.
+ * The ordering is determined by walking parent, sibling up the tree all the way to the root.
+ *
+ * ```javascript
+ * message Request {
+ *   required uint64 index = 1;
+ *   optional uint64 bytes = 2;
+ *   optional bool hash = 3;
+ *   optional uint64 nodes = 4;
+ * }
+ * ```
+ */
 message Request {
+
+  /**
+   * The chunk index for the chunk you want. You should only ask for indexes that you have 
+   * received the `Have` messages for
+   */
   required uint64 index = 1;
+
+  /**
+   * You can also optimistically specify a byte offset, and in the case the remote is able to 
+   * resolve the chunk for this byte offset depending on their Merkle tree state, they will 
+   * ignore the `index` and send the chunk that resolves for this byte offset instead. 
+   * But if they cannot resolve the byte request, `index` will be used.
+   */
   optional uint64 bytes = 2;
+
+  /** If you only want the hash of the chunk and not the chunk data itself */
   optional bool hash = 3;
+
+  /** A 64 bit long bitfield representing which parent nodes you have */
   optional uint64 nodes = 4;
 }
 
-// type=8, cancel a request
+/**
+ * Type 8. Cancel a previous Request message that you haven't received yet.
+ *
+ * ```javascript
+ * message Cancel {
+ *   required uint64 index = 1;
+ *   optional uint64 bytes = 2;
+ *   optional bool hash = 3;
+ * }
+ * ```
+ */
 message Cancel {
   required uint64 index = 1;
   optional uint64 bytes = 2;
   optional bool hash = 3;
 }
 
-// type=9, get some data
+/**
+ * Type 9. Sends a single chunk of data to the other peer. You can send it in response to a 
+ * `Request` or unsolicited on it's own as a friendly gift. The data includes all of the 
+ * Merkle tree parent nodes needed to verify the hash chain all the way up to the Merkle 
+ * roots for this chunk.
+ * 
+ * Because you can produce the direct parents by hashing the chunk, 
+ * only the roots and 'uncle' hashes are included (the siblings to all of the parent nodes).
+ *
+ * ```javascript
+ * message Data {
+ *   message Node {
+ *     required uint64 index = 1;
+ *     required bytes hash = 2;
+ *     required uint64 size = 3;
+ *   }
+ *   required uint64 index = 1;
+ *   optional bytes value = 2;
+ *   repeated Node nodes = 3;
+ *   optional bytes signature = 4;
+ * }
+ * ```
+ */
 message Data {
   message Node {
     required uint64 index = 1;
