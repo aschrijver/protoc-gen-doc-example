@@ -2,18 +2,15 @@
 
 Stream that implements the [hypercore](https://github.com/mafintosh/hypercore) protocol
 
-```
-npm install hypercore-protocol
-```
-
 [![build status](https://travis-ci.org/aschrijver/hypercore-protocol.svg?branch=master)](https://travis-ci.org/aschrijver/hypercore-protocol)
 
 ## Note
 
-This fork only testdrives automatic TravisCI documentation generation for Protocol Buffers 
-using [protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc).
+> This fork only serves to testdrive automatic TravisCI documentation generation for Protocol Buffers 
+using [protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc), and to provide examples/instruction for users, 
+plus to demonstrate some existing bugs in the generator.
 
-For the _real thing_ go to [hypercore protocol](https://github.com/mafintosh/hypercore-protocol)
+For the **_real thing_** go to original [hypercore-protocol](https://github.com/mafintosh/hypercore-protocol) github repo.
 
 ## Documentation generation
 
@@ -87,6 +84,58 @@ Invoking with the custom [markdown.mustache](docgen/markdown.mustache) template:
 Generates this output:
 - [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md)
 
+**Pro's**
+- Can fully customize the markdown output
+- All inlne markdown commands are passed through to the output, allowing rich formatting
+
+**Con's**:
+- Markdown-only format support. Other formats will be polluted with markdown commands
+- Not currently a viable option: Markdown for Fields not rendered by custom template
+
+## TravisCI YAML
+
+All the above generation options use the following `.travis.yml`:
+
+```yaml
+before_install:
+  # (PS A bit lazy here, this should really be in a separate script invoked from the yaml)
+  #
+  # Install protobuf-compiler and protoc-doc-gen using apt. TravisCI uses Ubuntu 14.04 by default.
+  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_14.04/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
+  - wget -nv http://download.opensuse.org/repositories/home:estan:protoc-gen-doc/xUbuntu_14.04/Release.key -O Release.key
+  - sudo apt-key add - < Release.key
+  - sudo apt-get update
+  - sudo apt-get install protobuf-compiler
+  # Note: Currently invalidly signed, key expired (https://github.com/pseudomuto/protoc-gen-doc/issues/295)
+  - sudo apt-get --allow-unauthenticated install protoc-gen-doc
+
+  # Create directory structure, copy files
+  - mkdir build && mkdir build/html
+  - cp docgen/stylesheet.css build/html
+
+  # Create all flavours of output formats to test (see README)
+  - protoc --doc_out=html,index.html:build schema.proto
+  - protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
+  - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
+  - protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
+language: node_js
+node_js:
+  - "6"
+  - "4"
+  - "0.12"
+  - "0.10"
+deploy:
+  provider: pages
+  skip_cleanup: true          # Do not forget, or the whole gh-pages branch is cleaned
+  name: datproject            # Name of the committer in gh-pages branch
+  local_dir: build            # Take files from the 'build' output directory
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard (see README)
+  on:
+    all_branches: true        # Could be set to 'branch: master' in production
+    node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
+```
+
 ## Conclusion
 
-Markdown generation works best for having rich formatting in Protocol Buffers documentation.
+Markdown generation works best for having rich formatting in Protocol Buffers documentation, 
+but needs fixing before it is usable.

@@ -1,13 +1,20 @@
 before_install:
+  # (PS A bit lazy here, this should really be in a separate script invoked from the yaml)
+  #
+  # Install protobuf-compiler and protoc-doc-gen using apt. TravisCI uses Ubuntu 14.04 by default.
   - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_14.04/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
   - wget -nv http://download.opensuse.org/repositories/home:estan:protoc-gen-doc/xUbuntu_14.04/Release.key -O Release.key
   - sudo apt-key add - < Release.key
   - sudo apt-get update
   - sudo apt-get install protobuf-compiler
+  # Note: Currently invalidly signed, key expired (https://github.com/pseudomuto/protoc-gen-doc/issues/295)
   - sudo apt-get --allow-unauthenticated install protoc-gen-doc
+
+  # Create directory structure, copy files
   - mkdir build && mkdir build/html
   - cp docgen/stylesheet.css build/html
 
+  # Create all flavours of output formats to test (see README)
   - protoc --doc_out=html,index.html:build schema.proto
   - protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
   - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
@@ -20,10 +27,10 @@ node_js:
   - "0.10"
 deploy:
   provider: pages
-  skip_cleanup: true
-  name: datproject
-  local_dir: build
-  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
+  skip_cleanup: true          # Do not forget, or the whole gh-pages branch is cleaned
+  name: datproject            # Name of the committer in gh-pages branch
+  local_dir: build            # Take files from the 'build' output directory
+  github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard (see README)
   on:
-    all_branches: true
-    node: '6'
+    all_branches: true        # Could be set to 'branch: master' in production
+    node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
