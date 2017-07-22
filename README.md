@@ -8,170 +8,70 @@ npm install hypercore-protocol
 
 [![build status](https://travis-ci.org/aschrijver/hypercore-protocol.svg?branch=master)](https://travis-ci.org/aschrijver/hypercore-protocol)
 
-## Usage
+## Note
 
-``` js
-var protocol = require('hypercore-protocol')
-var stream = protocol()
+This fork only testdrives automatic TravisCI documentation generation for Protocol Buffers 
+using [protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc).
 
-// open a feed specified by a 32 byte key
-var feed = stream.feed(Buffer('deadbeefdeadbeefdeadbeefdeadbeef'))
+For the _real thing_ go to [hypercore protocol](https://github.com/mafintosh/hypercore-protocol)
 
-feed.request({block: 42})
-feed.on('data', function (message) {
-  console.log(message) // contains message.index and message.value
-})
+## Documentation generation
 
-stream.pipe(anotherStream).pipe(stream)
+### HTML from build-in template
+
+Invoking `protoc-gen-doc` the standard way on [schema.proto](schema.proto):
+```
+  protoc --doc_out=html,index.html:build/html schema.proto
 ```
 
-## API
+Generates this output:
+- [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/index.html))
 
-#### `var stream = protocol([options])`
+**Pro's**:
+- Multi-format support. Works for all formats
 
-Create a new protocol duplex stream.
+**Con's**:
+- No support for bold, italic, line-breaks, code snippets within a description
 
-Options include:
+### HTML from custom html.mustache template
 
-``` js
-{
-  id: optionalPeerId, // you can use this to detect if you connect to yourself
-  live: keepStreamOpen, // signal to the other peer that you want to keep this stream open forever
-  userData: opaqueUserData // include user data that you can retrieve on handshake
-  encrypt: true, // set to false to disable encryption if you are already piping through a encrypted stream
-  timeout: 5000 // stream timeout. set to 0 or false to disable.
-}
+An adapted `html.mustache` would allow html tags to pass through to the output. Just need to add triple accolades:
+```
+  {{#file_description}}{{#p}}{{{file_description}}}{{/p}}{{/file_description}}
 ```
 
-If you don't specify a peer id a random 32 byte will be used.
-You can access the peer id using `p.id` and the remote peer id using `p.remoteId`.
-
-#### `var feed = stream.feed(key)`
-
-Signal the other end that you want to share a hypercore feed.
-
-You can use the same stream to share more than one BUT the first feed shared
-should be the same one. The key of the first feed is also used to encrypt the stream using [libsodium](https://github.com/mafintosh/sodium-native#crypto_stream_xorcipher-message-nonce-key).
-
-#### `stream.on('handshake')`
-
-Emitted when a protocol handshake has been received. Afterwards you can check `.remoteId` to get the remote peer id, `.remoteLive` to get its live status, or `.remoteUserData` to get its user data.
-
-#### `stream.on('feed', discoveryKey)`
-
-Emitted when a remote is sharing a feed. `discoveryKey` is the hypercore discovery key of the feed they want to share.
-
-If you are sharing multiple hypercores on the same port you can use this event to wait for the remote peer to indicate which hypercore
-they are interested in.
-
-#### `stream.destroy([error])`
-
-Destroy the stream. Closes all feeds as well.
-
-#### `stream.finalize()`
-
-Gracefully end the stream. Closes all feeds as well.
-
-#### `feed.info(message)`
-
-Send an `info` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('info', message)`
-
-Emitted when an `info` message has been received.
-
-#### `feed.have(message)`
-
-Send a `have` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('have', message)`
-
-Emitted when a `have` message has been received.
-
-#### `feed.unhave(message)`
-
-Send a `unhave` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('unhave', message)`
-
-Emitted when a `unhave` message has been received.
-
-#### `feed.want(want)`
-
-Send a `want` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('want', want)`
-
-Emitted when a `want` message has been received.
-
-#### `feed.unwant(unwant)`
-
-Send a `unwant` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('unwant', unwant)`
-
-Emitted when a `unwant` message has been received.
-
-#### `feed.request(request)`
-
-Send a `request` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('request', request)`
-
-Emitted when a `request` message has been received.
-
-#### `feed.cancel(cancel)`
-
-Send a `cancel` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('cancel', cancel)`
-
-Emitted when a `cancel` message has been received.
-
-#### `feed.data(data)`
-
-Send a `data` message. See the [schema.proto](schema.proto) file for more information.
-
-#### `feed.on('data', data)`
-
-Emitted when a `data` message has been received.
-
-#### `feed.on('close')`
-
-Emitted when this feed has been closed. All feeds are automatically closed when the stream ends or is destroyed.
-
-#### `feed.close()`
-
-Close this feed. You only need to call this if you are sharing a lot of feeds and want to garbage collect some old unused ones.
-
-#### `feed.destroy(err)`
-
-An alias to `stream.destroy`.
-
-## Wire protocol
-
-The hypercore protocol uses a basic varint length prefixed format to send messages over the wire.
-
-All messages contains a header indicating the type and feed id, and a protobuf encoded payload.
-
+Using the [html.mustache](docgen/html.mustache) custom template on schema [HypercoreSpecV1_html.proto](schemas/HypercoreSpecV1_html.proto):
 ```
-message = header + payload
+  protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
 ```
 
-A header is a varint that looks like this
+Generates this output:
+- [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/html/inline-html-comments.html) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/html/inline-html-comments.html))
 
+**Pro's**:
+- Supports bold, italic, line-breaks, code snippets within a description
+
+**Con's**:
+- HTML-only format support. Other formats will be polluted with html tags
+- Need to escape html characters that are part of the text, using `&lt;`, `&gt;`, etc.
+- Not currently a viable option: [Field information not rendered with custom html.mustache templates](https://github.com/pseudomuto/protoc-gen-doc/issues/300)
+
+### Build-in markdown template with inline markdown formatting
+
+Invoking for markdown generation on schema [HypercoreSpecV1_md.proto](schemas/HypercoreSpecV1_md.proto):
 ```
-header = numeric-feed-id << 4 | numeric-type
+  protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
 ```
 
-The feed id is just an incrementing number for every feed shared and the type corresponds to which protobuf schema should be used to decode the payload.
+Generates this output:
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol.md
 
-The message is then wrapped in another varint containing the length of the message
+**Pro's**
+- All inlne markdown commands are passed through to the output, allowing rich formatting
 
-```
-wire = length(message) + message + length(message2) + message2 + ...
-```
+**Con's**:
+- Markdown-only format support. Other formats will be polluted with markdown commands
 
-## License
+## Conclusion
 
-MIT
+Markdown generation works best for having rich formatting in Protocol Buffers documentation.

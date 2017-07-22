@@ -7,7 +7,10 @@ before_install:
   - sudo apt-get --allow-unauthenticated install protoc-gen-doc
   - mkdir build && mkdir build/html
   - cp docgen/stylesheet.css build/html
-  - protoc --doc_out=html,index.html:build/html *.proto
+
+  - protoc --doc_out=html,index.html:build schema.proto
+  - protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
+  - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
 language: node_js
 node_js:
   - "6"
@@ -18,7 +21,7 @@ deploy:
   provider: pages
   skip_cleanup: true
   name: datproject
-  local_dir: build/html
+  local_dir: build
   github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard
   on:
     all_branches: true

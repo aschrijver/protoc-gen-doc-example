@@ -1,3 +1,14 @@
+pre {
+  background-color: lightgray;
+  padding: 20px;
+}
+
+code {
+  background-color: lightgray;
+}
+
+/** The original css, copied from generated output */
+
 body {
   width: 60em;
   margin: 1em auto;

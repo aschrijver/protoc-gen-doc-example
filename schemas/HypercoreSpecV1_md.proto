@@ -1,14 +1,14 @@
 /**
- * The SLEEP format is designed to allow for sparse replication, meaning you
+ * The **SLEEP** format is designed to allow for sparse replication, meaning you
  * can efficiently download only the metadata and data required to resolve a
  * single byte region of a single file, which makes Dat suitable for a wide
  * variety of streaming, real time and large dataset use cases.
  *
- * To take advantage of this, Dat includes a network protocol. It is message
+ * To take advantage of this, Dat includes a _network protocol_. It is message
  * based and stateless, making it possible to implement on a variety of network
  * transport protocols including UDP and TCP.
  *
- * Both metadata and content registers in SLEEP share the exact same
+ * Both metadata and content registers in **SLEEP** share the exact same
  * replication protocol.
  *
  * Individual messages are encoded using Protocol Buffers and there are ten
@@ -17,11 +17,13 @@
  * Over the wire messages are packed in the following lightweight
  * container format:
  *
+ * ```
  * <varint - length of rest of message>
  *   <varint - header>
  *   <message>
+ * ```
  *
- * The header value is a single varint that has two pieces of information,
+ * The `header` value is a single `varint` that has two pieces of information,
  * the integer type that declares a 4-bit message type (used below), and a
  * channel identifier, 0 for metadata and 1 for content.
  *
