@@ -48,7 +48,7 @@ An adapted `html.mustache` would allow html tags to pass through to the output. 
 
 Using the [html.mustache](docgen/html.mustache) custom template on schema [HypercoreSpecV1_html.proto](schemas/HypercoreSpecV1_html.proto):
 ```sh
-  protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html \
+  protoc --doc_out=docgen/datproject_htm.mustache,inline-html-comments.html:build/html \
       schemas/HypercoreSpecV1_html.proto
 ```
 
@@ -86,7 +86,7 @@ With a custom markdown template and adding a newline after the anchor before mes
 
 Invoking with the custom [markdown.mustache](docgen/markdown.mustache) template:
 ```sh
-  protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build \
+  protoc --doc_out=docgen/datproject_md.mustache,hypercore-protocol_custom-template.md:build \
       schemas/HypercoreSpecV1_md.proto
 ```
 
