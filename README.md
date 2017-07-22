@@ -14,6 +14,13 @@ For the **_real thing_** go to original [hypercore-protocol](https://github.com/
 
 ## Documentation generation
 
+Versions:
+
+- Ubuntu `16.04`
+- libprotoc `2.6.1`
+- protoc-gen-doc `0.9` (presumably, but [`protoc-gen-doc --version`](https://github.com/pseudomuto/protoc-gen-doc/issues/299) is not supported to confirm that)
+
+
 ### HTML from build-in template
 
 Invoking `protoc-gen-doc` the standard way on [schema.proto](schema.proto):
