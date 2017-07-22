@@ -20,7 +20,7 @@ For the _real thing_ go to [hypercore protocol](https://github.com/mafintosh/hyp
 ### HTML from build-in template
 
 Invoking `protoc-gen-doc` the standard way on [schema.proto](schema.proto):
-```
+```sh
   protoc --doc_out=html,index.html:build/html schema.proto
 ```
 
@@ -41,8 +41,9 @@ An adapted `html.mustache` would allow html tags to pass through to the output. 
 ```
 
 Using the [html.mustache](docgen/html.mustache) custom template on schema [HypercoreSpecV1_html.proto](schemas/HypercoreSpecV1_html.proto):
-```
-  protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
+```sh
+  protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html \
+      schemas/HypercoreSpecV1_html.proto
 ```
 
 Generates this output:
@@ -59,12 +60,12 @@ Generates this output:
 ### Build-in markdown template with inline markdown formatting
 
 Invoking for markdown generation on schema [HypercoreSpecV1_md.proto](schemas/HypercoreSpecV1_md.proto):
-```
+```sh
   protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol.md
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol.md)
 
 **Pro's**
 - All inlne markdown commands are passed through to the output, allowing rich formatting
@@ -78,12 +79,13 @@ Generates this output:
 With a custom markdown template and adding a newline after the anchor before message title and enum title.
 
 Invoking with the custom [markdown.mustache](docgen/markdown.mustache) template:
-```
-  protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
+```sh
+  protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build \
+      schemas/HypercoreSpecV1_md.proto
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md)
 
 ## Conclusion
 

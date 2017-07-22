@@ -11,6 +11,7 @@ before_install:
   - protoc --doc_out=html,index.html:build schema.proto
   - protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
   - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
+  - protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
 language: node_js
 node_js:
   - "6"
