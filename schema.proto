@@ -130,7 +130,7 @@ message Unhave {
 message Want {
   required uint64 start = 1;
 
-  /** Defaults to `Infinity` or `feed.length` (if not `live`) **
+  /** Defaults to `Infinity` or `feed.length` (if not `live`) */
   optional uint64 length = 2;
 }
 
@@ -144,7 +144,7 @@ message Want {
 message Unwant {
   required uint64 start = 1;
 
-  /** Defaults to `Infinity` or `feed.length` (if not `live`) **
+  /** Defaults to `Infinity` or `feed.length` (if not `live`) */
   optional uint64 length = 2;
 }
 
