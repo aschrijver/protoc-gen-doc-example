@@ -1,71 +1,40 @@
+syntax = "proto2";
+
 /**
- * The **SLEEP** format is designed by the [Dat Project](https://datproject.org) 
- * to allow for sparse replication, meaning you can efficiently download
- * only the metadata and data required to resolve a single byte region 
- * of a single file, which makes Dat suitable for a wide variety of streaming,
- * _real-time_ and large dataset use cases.
+ * The SLEEP format is designed to allow for sparse replication, meaning you
+ * can efficiently download only the metadata and data required to resolve a
+ * single byte region of a single file, which makes Dat suitable for a wide
+ * variety of streaming, real time and large dataset use cases.
  *
- * To take advantage of this, Dat includes a _network protocol_. It is message
+ * To take advantage of this, Dat includes a network protocol. It is message
  * based and stateless, making it possible to implement on a variety of network
  * transport protocols including UDP and TCP.
  *
- * Both metadata and content registers in **SLEEP** share the exact same
- * replication protocol.
- *
+ * Both metadata and content registers in SLEEP share the exact same
+ * replication protocol.<br>
  * Individual messages are encoded using Protocol Buffers and there are ten
  * message types in total.
- *
- * ### Wire Protocol
  *
  * Over the wire messages are packed in the following lightweight
  * container format:
  *
- * ```
- * <varint - length of rest of message>
- *   <varint - header>
- *   <message>
- * ```
+ * <pre>
+ *     &lt;varint - length of rest of message&gt;
+ *       &lt;varint - header&gt;
+ *       &lt;message&gt;
+ * </pre>
  *
- * The `header` value is a single `varint` that has two pieces of information,
+ * The <code>header</code> value is a single varint that has two pieces of information,
  * the integer type that declares a 4-bit message type (used below), and a
  * channel identifier, 0 for metadata and 1 for content.
  *
  * To generate this varint, you bitshift the 4-bit type integer onto the end of
- * the channel identifier, e.g. channel << 4 | <4-bit-type>.
- *
- * ### Using in NodeJS
- *
- * The `protocol-bufers` package offers an intuitive javascript API, so you need
- * not worry about low-level protocol concepts.
- * 
- * This example demonstrates how you create a feed and start streaming:
- *
- * ```javascript
- *   var protocol = require('hypercore-protocol')
- *   var stream = protocol()
- *   
- *   // open a feed specified by a 32 byte key
- *   var feed = stream.feed(Buffer('deadbeefdeadbeefdeadbeefdeadbeef'))
- *   
- *   feed.request({block: 42})
- *   feed.on('data', function (message) {
- *     console.log(message) // contains message.index and message.value
- *   })
- *   
- *   stream.pipe(anotherStream).pipe(stream)
- * ```
+ * the channel identifier, e.g. channel &lt;&ltl 4 | &lt;4-bit-type&gt;.
  */
 
-/**
- * Type 0. Should be the first message sent on a channel.
- *
- * ```javascript
- * message Feed {
- *   required bytes discoveryKey = 1;
- *   optional bytes nonce = 2;
- * }
- * ```
- */
+ /**
+  * Type 0. Should be the first message sent on a channel.
+  */
 message Feed {
 
   /**
@@ -81,15 +50,6 @@ message Feed {
 /**
  * Type 1. Overall connection handshake. Should be sent just after the
  * Feed message on the first channel only (metadata).
- *
- * ```javascript
- * message Handshake {
- *   optional bytes id = 1;
- *   optional bool live = 2;
- *   optional bytes userData = 3;
- *   repeated string extensions = 4;
- * }
- * ```
  */
 message Handshake {
 
@@ -121,13 +81,6 @@ message Handshake {
  * Initial state for uploading / downloading is true.
  * If both ends are not downloading and not live it is safe to consider
  * the stream ended.
- *
- * ```javascript
- * message Info {
- *   optional bool uploading = 1;
- *   optional bool downloading = 2;
- * }
- * ```
  */
 message Info {
   optional bool uploading = 1;
@@ -140,37 +93,6 @@ message Info {
  *
  * You should only send Have messages to peers who have expressed interest in
  * this region by sending Want messages.
- *
- * ```javascript 
- * message Have {
- *   required uint64 start = 1;
- *   optional uint64 length = 2 [default = 1];
- *   optional bytes bitfield = 3;
- * }
- * ```
- * 
- * When sending bitfields you must run length encode them. The encoded bitfield 
- * is a series of compressed and uncompressed bit sequences. All sequences start with 
- * a header that is a varint.
- * 
- * If the last bit is set in the varint (it is an odd number) then a header represents 
- * a compressed bit sequence.
- * 
- * ```javascript
- * compressed-sequence = varint(
- *   byte-length-of-sequence
- *   << 2 | bit << 1 | 1
- * )
- * ```
- * 
- * If the last bit is not set then a header represents an non compressed sequence
- * 
- * ```javascript
- * uncompressed-sequence = varint(
- *   byte-length-of-bitfield << 1 | 0
- * ) + (bitfield)
- * ```
- * 
  */
 message Have {
 
@@ -196,12 +118,12 @@ message Have {
 /**
  * Type 4. How you communicate that you deleted or removed a chunk you used to have.
  *
- * ```javascript
+ * <pre>
  * message Unhave {
  *   required uint64 start = 1;
  *   optional uint64 length = 2 [default = 1];
  * }
- * ```
+ * </pre>
  */
 message Unhave {
   required uint64 start = 1;
@@ -211,40 +133,40 @@ message Unhave {
 /**
  * Type 5. How you ask the other peer to subscribe you to Have messages for a region of chunks.
  *
- * 'What do we want?' Remote should start sending `Have` messages in this range.
+ * 'What do we want?' Remote should start sending <code>Have</code> messages in this range.
  *
- * ```javascript
+ * <pre>
  * message Want {
  *   required uint64 start = 1;
  *   optional uint64 length = 2;
  * }
- * ```
+ * </pre>
  */
 message Want {
   required uint64 start = 1;
 
-  /** Defaults to `Infinity` or `feed.length` (if not `live`) */
+  /** Defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>) */
   optional uint64 length = 2;
 }
 
 /**
- * Type 6. How you ask to unsubscribe from `Have` messages for a region of chunks from the 
- * other peer. You should only Unwant previously Wanted regions, but if you do `Unwant` 
+ * Type 6. How you ask to unsubscribe from <code>Have</code> messages for a region of chunks from the 
+ * other peer. You should only Unwant previously Wanted regions, but if you do <code>Unwant</code> 
  * something that hasn't been Wanted it won't have any effect. 
  * 
- * The `length` value defaults to `Infinity` or `feed.length` (if not `live`).
+ * The <code>length</code> value defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>).
  * 
- * ```javascript
+ * <pre>
  * message Unwant {
  *   required uint64 start = 1;
  *   optional uint64 length = 2;
  * }
- * ```
+ * </pre>
  */
 message Unwant {
   required uint64 start = 1;
 
-  /** Defaults to `Infinity` or `feed.length` (if not `live`) */
+  /** Defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>) */
   optional uint64 length = 2;
 }
 
@@ -253,36 +175,36 @@ message Unwant {
  *
  * The nodes bitfield is an optional optimization to reduce the amount of duplicate nodes 
  * exchanged during the replication lifecycle. It indicates which parents you have or don't 
- * have. You have a maximum of 64 parents you can specify. Because `uint64` in Protocol Buffers
- * is implemented as a `varint`, over the wire this does not take up 64 bits in most cases.
+ * have. You have a maximum of 64 parents you can specify. Because <code>uint64</code> in Protocol Buffers
+ * is implemented as a <code>varint</code>, over the wire this does not take up 64 bits in most cases.
  * 
  * The first bit is reserved to signify whether or not you need a signature in response. 
- * The rest of the bits represent whether or not you have (`1`) or don't have (`0`) the 
+ * The rest of the bits represent whether or not you have (<code>1</code>) or don't have (<code>0</code>) the 
  * information at this node already.
  * The ordering is determined by walking parent, sibling up the tree all the way to the root.
  *
- * ```javascript
+ * <pre>
  * message Request {
  *   required uint64 index = 1;
  *   optional uint64 bytes = 2;
  *   optional bool hash = 3;
  *   optional uint64 nodes = 4;
  * }
- * ```
+ * </pre>
  */
 message Request {
 
   /**
    * The chunk index for the chunk you want. You should only ask for indexes that you have 
-   * received the `Have` messages for
+   * received the <code>Have</code> messages for
    */
   required uint64 index = 1;
 
   /**
    * You can also optimistically specify a byte offset, and in the case the remote is able to 
    * resolve the chunk for this byte offset depending on their Merkle tree state, they will 
-   * ignore the `index` and send the chunk that resolves for this byte offset instead. 
-   * But if they cannot resolve the byte request, `index` will be used.
+   * ignore the <code>index</code> and send the chunk that resolves for this byte offset instead. 
+   * But if they cannot resolve the byte request, <code>index</code> will be used.
    */
   optional uint64 bytes = 2;
 
@@ -296,13 +218,13 @@ message Request {
 /**
  * Type 8. Cancel a previous Request message that you haven't received yet.
  *
- * ```javascript
+ * <pre>
  * message Cancel {
  *   required uint64 index = 1;
  *   optional uint64 bytes = 2;
  *   optional bool hash = 3;
  * }
- * ```
+ * </pre>
  */
 message Cancel {
   required uint64 index = 1;
@@ -312,14 +234,14 @@ message Cancel {
 
 /**
  * Type 9. Sends a single chunk of data to the other peer. You can send it in response to a 
- * `Request` or unsolicited on it's own as a friendly gift. The data includes all of the 
+ * <code>Request</code> or unsolicited on it's own as a friendly gift. The data includes all of the 
  * Merkle tree parent nodes needed to verify the hash chain all the way up to the Merkle 
  * roots for this chunk.
  * 
  * Because you can produce the direct parents by hashing the chunk, 
  * only the roots and 'uncle' hashes are included (the siblings to all of the parent nodes).
  *
- * ```javascript
+ * <pre>
  * message Data {
  *   message Node {
  *     required uint64 index = 1;
@@ -331,7 +253,7 @@ message Cancel {
  *   repeated Node nodes = 3;
  *   optional bytes signature = 4;
  * }
- * ```
+ * </pre>
  */
 message Data {
   message Node {
