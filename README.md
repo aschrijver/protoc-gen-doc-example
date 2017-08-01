@@ -18,86 +18,79 @@ For the **_real thing_** go to original [hypercore-protocol](https://github.com/
 
 Versions:
 
-- Ubuntu `16.04`
-- libprotoc `2.6.1`
-- protoc-gen-doc `0.9` (presumably, but [`protoc-gen-doc --version`](https://github.com/pseudomuto/protoc-gen-doc/issues/299) is not supported to confirm that)
+- protoc-gen-doc `alpha_go-port`
 
 
 ### HTML from build-in template
 
 Invoking `protoc-gen-doc` the standard way on [schema.proto](schema.proto):
 ```sh
-  protoc --doc_out=html,index.html:build/html schema.proto
+  docker run --rm -v $(pwd)/build:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
 ```
 
 Generates this output:
 - [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/index.html))
 
-**Pro's**:
+_Pro's_:
 - Multi-format support. Works for all formats
 
-**Con's**:
+_Con's_:
 - No support for bold, italic, line-breaks, code snippets within a description
 
-### HTML from custom html.mustache template
+### HTML with custom template
 
-An adapted `html.mustache` would allow html tags to pass through to the output. Just need to add triple accolades:
-```
-  {{#file_description}}{{#p}}{{{file_description}}}{{/p}}{{/file_description}}
-```
-
-Using the [html.mustache](docgen/html.mustache) custom template on schema [HypercoreSpecV1_html.proto](schemas/HypercoreSpecV1_html.proto):
+Using [custom-html.tmpl](docgen/custom-html.tmpl) on schema [HypercoreSpecV1_html.proto](schemas/html/HypercoreSpecV1_html.proto):
 ```sh
-  protoc --doc_out=docgen/datproject_htm.mustache,inline-html-comments.html:build/html \
-      schemas/HypercoreSpecV1_html.proto
+  docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro \
+      -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc \
+      --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html
 ```
 
 Generates this output:
 - [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/html/inline-html-comments.html) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/html/inline-html-comments.html))
 
-**Pro's**:
+_Pro's_:
 - Supports bold, italic, line-breaks, code snippets within a description
 
-**Con's**:
+_Con's_:
 - HTML-only format support. Other formats will be polluted with html tags
 - Need to escape html characters that are part of the text, using `&lt;`, `&gt;`, etc.
 - Not currently a viable option: [Field information not rendered with custom html.mustache templates](https://github.com/pseudomuto/protoc-gen-doc/issues/300)
 
 ### Build-in markdown template with inline markdown formatting
 
-Invoking for markdown generation on schema [HypercoreSpecV1_md.proto](schemas/HypercoreSpecV1_md.proto):
+Invoking for markdown generation on schema [HypercoreSpecV1_md.proto](schemas/md/HypercoreSpecV1_md.proto):
 ```sh
-  protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
+  docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
 ```
 
 Generates this output:
 - [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol.md)
 
-**Pro's**
+_Pro's_
 - All inlne markdown commands are passed through to the output, allowing rich formatting
 
-**Con's**:
+_Con's_:
 - Markdown-only format support. Other formats will be polluted with markdown commands
 - Not currently a viable option: Markdown for Messages incorrectly rendered by build-in template
 
 ### Custom markdown template
 
-With a custom markdown template and adding a newline after the anchor before message title and enum title.
-
-Invoking with the custom [markdown.mustache](docgen/markdown.mustache) template:
+Invoking with [custom-markdown.tmpl](docgen/custom-markdown.tmpl) template:
 ```sh
-  protoc --doc_out=docgen/datproject_md.mustache,hypercore-protocol_custom-template.md:build \
-      schemas/HypercoreSpecV1_md.proto
+  docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro \
+      -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc \
+      --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md
 ```
 
 Generates this output:
 - [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md)
 
-**Pro's**
+_Pro's_
 - Can fully customize the markdown output
 - All inlne markdown commands are passed through to the output, allowing rich formatting
 
-**Con's**:
+_Con's_:
 - Markdown-only format support. Other formats will be polluted with markdown commands
 - Not currently a viable option: Markdown for Fields not rendered by custom template
 
@@ -106,33 +99,32 @@ Generates this output:
 All the above generation options use the following `.travis.yml`:
 
 ```yaml
+sudo: required
+
+services:
+  - docker
+
 before_install:
   # (PS A bit lazy here, this should really be in a separate script invoked from the yaml)
-  #
-  # Install protobuf-compiler and protoc-doc-gen using apt. TravisCI uses Ubuntu 14.04 by default.
-  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_14.04/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
-  - wget -nv http://download.opensuse.org/repositories/home:estan:protoc-gen-doc/xUbuntu_14.04/Release.key -O Release.key
-  - sudo apt-key add - < Release.key
-  - sudo apt-get update
-  - sudo apt-get install protobuf-compiler
-  # Note: Currently invalidly signed, key expired (https://github.com/pseudomuto/protoc-gen-doc/issues/295)
-  - sudo apt-get --allow-unauthenticated install protoc-gen-doc
 
   # Create directory structure, copy files
   - mkdir build && mkdir build/html
   - cp docgen/stylesheet.css build/html
 
   # Create all flavours of output formats to test (see README)
-  - protoc --doc_out=html,index.html:build schema.proto
-  - protoc --doc_out=docgen/html.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
-  - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
-  - protoc --doc_out=docgen/markdown.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
+  - docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md
+
 language: node_js
+
 node_js:
   - "6"
   - "4"
   - "0.12"
   - "0.10"
+
 deploy:
   provider: pages
   skip_cleanup: true          # Do not forget, or the whole gh-pages branch is cleaned
@@ -142,9 +134,9 @@ deploy:
   on:
     all_branches: true        # Could be set to 'branch: master' in production
     node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
+
 ```
 
 ## Conclusion
 
-Markdown generation works best for having rich formatting in Protocol Buffers documentation, 
-but needs fixing before it is usable.
+[TODO]
