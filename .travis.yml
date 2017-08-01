@@ -1,30 +1,29 @@
+sudo: required
+
+services:
+  - docker
+
 before_install:
   # (PS A bit lazy here, this should really be in a separate script invoked from the yaml)
-  #
-  # Install protobuf-compiler and protoc-doc-gen using apt. TravisCI uses Ubuntu 14.04 by default.
-  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/estan:/protoc-gen-doc/xUbuntu_14.04/ /' > /etc/apt/sources.list.d/protoc-gen-doc.list"
-  - wget -nv http://download.opensuse.org/repositories/home:estan:protoc-gen-doc/xUbuntu_14.04/Release.key -O Release.key
-  - sudo apt-key add - < Release.key
-  - sudo apt-get update
-  - sudo apt-get install protobuf-compiler
-  # Note: Currently invalidly signed, key expired (https://github.com/pseudomuto/protoc-gen-doc/issues/295)
-  - sudo apt-get --allow-unauthenticated install protoc-gen-doc
 
   # Create directory structure, copy files
   - mkdir build && mkdir build/html
   - cp docgen/stylesheet.css build/html
 
   # Create all flavours of output formats to test (see README)
-  - protoc --doc_out=html,index.html:build schema.proto
-  - protoc --doc_out=docgen/datproject_htm.mustache,inline-html-comments.html:build/html schemas/HypercoreSpecV1_html.proto
-  - protoc --doc_out=markdown,hypercore-protocol.md:build schemas/HypercoreSpecV1_md.proto
-  - protoc --doc_out=docgen/datproject_md.mustache,hypercore-protocol_custom-template.md:build schemas/HypercoreSpecV1_md.proto
+  - docker run --rm -v $(pwd)/build/html:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
+  - docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md
+
 language: node_js
+
 node_js:
   - "6"
   - "4"
   - "0.12"
   - "0.10"
+
 deploy:
   provider: pages
   skip_cleanup: true          # Do not forget, or the whole gh-pages branch is cleaned
