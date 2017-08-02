@@ -43,7 +43,8 @@ Using [custom-html.tmpl](docgen/custom-html.tmpl) on schema [HypercoreSpecV1_htm
 ```sh
   docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro \
       -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc \
-      --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html
+      --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html \
+       protos/HypercoreSpecV1_html.proto
 ```
 
 Generates this output:
@@ -80,7 +81,8 @@ Invoking with [custom-markdown.tmpl](docgen/custom-markdown.tmpl) template:
 ```sh
   docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro \
       -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc \
-      --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md
+      --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md \
+       protos/HypercoreSpecV1_md.proto
 ```
 
 Generates this output:
@@ -113,9 +115,9 @@ before_install:
 
   # Create all flavours of output formats to test (see README)
   - docker run --rm -v $(pwd)/build:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
-  - docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html
+  - docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html protos/HypercoreSpecV1_html.proto
   - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
-  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md
+  - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md protos/HypercoreSpecV1_md.proto
 
 language: node_js
 
