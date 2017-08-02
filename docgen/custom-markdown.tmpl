@@ -3,8 +3,7 @@
 
 ## Table of Contents
 {{range .Files}}
-{{$file_name := .Name}}
-- [{{.Name}}](#{{.Name}})
+{{$file_name := .Name}}- [{{.Name}}](#{{.Name}})
   {{range .Messages}}  - [{{.LongName}}](#{{.FullName}})
   {{end}}
   {{range .Enums}}  - [{{.LongName}}](#{{.FullName}})
