@@ -1,5 +1,3 @@
-syntax = "proto2";
-
 /**
  * The **SLEEP** format is designed by the [Dat Project](https://datproject.org) 
  * to allow for sparse replication, meaning you can efficiently download
@@ -57,6 +55,8 @@ syntax = "proto2";
  *   stream.pipe(anotherStream).pipe(stream)
  * ```
  */
+
+syntax = "proto2";
 
 /**
  * Type 0. Should be the first message sent on a channel.
