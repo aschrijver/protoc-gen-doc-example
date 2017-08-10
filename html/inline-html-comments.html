@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <title>Protocol Documentation</title>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Ubuntu:400,700,400italic"/>
+    <style>
+      body {
+        width: 60em;
+        margin: 1em auto;
+        color: #222;
+        font-family: "Ubuntu", sans-serif;
+        padding-bottom: 4em;
+      }
+
+      h1 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      h2 {
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+        margin: 1.5em 0;
+      }
+
+      h3 {
+        font-weight: normal;
+        border-bottom: 1px solid #aaa;
+        padding-bottom: 0.5ex;
+      }
+
+      a {
+        text-decoration: none;
+        color: #567e25;
+      }
+
+      table {
+        width: 100%;
+        font-size: 80%;
+        border-collapse: collapse;
+      }
+
+      thead {
+        font-weight: 700;
+        background-color: #dcdcdc;
+      }
+
+      tbody tr:nth-child(even) {
+        background-color: #fbfbfb;
+      }
+
+      td {
+        border: 1px solid #ccc;
+        padding: 0.5ex 2ex;
+      }
+
+      td p {
+        text-indent: 1em;
+        margin: 0;
+      }
+
+      td p:nth-child(1) {
+        text-indent: 0; /* No indent on first p in td */
+      }
+
+      /* Table of fields */
+      .field-table td:nth-child(1) { /* Field */
+        width: 10em;
+      }
+      .field-table td:nth-child(2) { /* Type */
+        width: 10em;
+      }
+      .field-table td:nth-child(3) { /* Label */
+        width: 6em;
+      }
+      .field-table td:nth-child(4) { /* Description */
+        width: auto;
+      }
+
+      /* Table of extensions */
+      .extension-table td:nth-child(1) { /* Extension */
+        width: 10em;
+      }
+      .extension-table td:nth-child(2) { /* Type */
+        width: 10em;
+      }
+      .extension-table td:nth-child(3) { /* Base */
+        width: 10em;
+      }
+      .extension-table td:nth-child(4) { /* Number */
+        width: 5em;
+      }
+      .extension-table td:nth-child(5) { /* Description */
+        width: auto;
+      }
+
+      /* Table of enum values. */
+      .enum-table td:nth-child(1) { /* Name */
+        width: 10em;
+      }
+      .enum-table td:nth-child(2) { /* Number */
+        width: 10em;
+      }
+      .enum-table td:nth-child(3) { /* Description */
+        width: auto;
+      }
+
+      /* Table of scalar value types. */
+      .scalar-value-types-table tr {
+        height: 3em;
+      }
+
+      /* Table of contents. */
+      #toc-container ul {
+        list-style-type: none;
+        padding-left: 1em;
+        line-height: 180%;
+        margin: 0;
+      }
+      #toc > li > a {
+        font-weight: bold;
+      }
+
+      /* File heading div */
+      .file-heading {
+        width: 100%;
+        display: table;
+        border-bottom: 1px solid #aaa;
+        margin: 4em 0 1.5em 0;
+      }
+      .file-heading h2 {
+        border: none;
+        display: table-cell;
+      }
+      .file-heading a {
+        text-align: right;
+        display: table-cell;
+      }
+
+      /* The 'M', 'E' and 'X' badges in the ToC */
+      .badge {
+        width: 1.6em;
+        height: 1.6em;
+        display: inline-block;
+
+        line-height: 1.6em;
+        text-align: center;
+        font-weight: bold;
+        font-size: 60%;
+
+        color: #89ba48;
+        background-color: #dff0c8;
+
+        margin: 0.5ex 1em 0.5ex -1em;
+        border: 1px solid #fbfbfb;
+        border-radius: 1ex;
+      }
+    </style>
+
+    <!-- User custom CSS -->
+    <link rel="stylesheet" type="text/css" href="stylesheet.css"/>
+  </head>
+
+  <body>
+
+    <h1 id="title">Protocol Documentation</h1>
+
+    <h2>Table of Contents</h2>
+
+    <div id="toc-container">
+      <ul id="toc">
+        
+          
+          <li>
+            <a href="#HypercoreSpecV1_html.proto">HypercoreSpecV1_html.proto</a>
+            <ul>
+              
+                <li>
+                  <a href="#.Cancel"><span class="badge">M</span>Cancel</a>
+                </li>
+              
+                <li>
+                  <a href="#.Data"><span class="badge">M</span>Data</a>
+                </li>
+              
+                <li>
+                  <a href="#.Data.Node"><span class="badge">M</span>Data.Node</a>
+                </li>
+              
+                <li>
+                  <a href="#.Feed"><span class="badge">M</span>Feed</a>
+                </li>
+              
+                <li>
+                  <a href="#.Handshake"><span class="badge">M</span>Handshake</a>
+                </li>
+              
+                <li>
+                  <a href="#.Have"><span class="badge">M</span>Have</a>
+                </li>
+              
+                <li>
+                  <a href="#.Info"><span class="badge">M</span>Info</a>
+                </li>
+              
+                <li>
+                  <a href="#.Request"><span class="badge">M</span>Request</a>
+                </li>
+              
+                <li>
+                  <a href="#.Unhave"><span class="badge">M</span>Unhave</a>
+                </li>
+              
+                <li>
+                  <a href="#.Unwant"><span class="badge">M</span>Unwant</a>
+                </li>
+              
+                <li>
+                  <a href="#.Want"><span class="badge">M</span>Want</a>
+                </li>
+              
+              
+              
+              
+            </ul>
+          </li>
+        
+        <li><a href="#scalar-value-types">Scalar Value Types</a></li>
+      </ul>
+    </div>
+
+    
+      
+      <div class="file-heading">
+        <h2 id="HypercoreSpecV1_html.proto">HypercoreSpecV1_html.proto</h2><a href="#title">Top</a>
+      </div>
+      <p></p>
+
+      
+        <h3 id=".Cancel">Cancel</h3>
+        <p>Type 8. Cancel a previous Request message that you haven't received yet.</p><p><pre></p><p>message Cancel {</p><p>required uint64 index = 1;</p><p>optional uint64 bytes = 2;</p><p>optional bool hash = 3;</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>index</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>bytes</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>hash</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Data">Data</h3>
+        <p>Type 9. Sends a single chunk of data to the other peer. You can send it in response to a</p><p><code>Request</code> or unsolicited on it's own as a friendly gift. The data includes all of the</p><p>Merkle tree parent nodes needed to verify the hash chain all the way up to the Merkle</p><p>roots for this chunk.</p><p>Because you can produce the direct parents by hashing the chunk,</p><p>only the roots and 'uncle' hashes are included (the siblings to all of the parent nodes).</p><p><pre></p><p>message Data {</p><p>message Node {</p><p>required uint64 index = 1;</p><p>required bytes hash = 2;</p><p>required uint64 size = 3;</p><p>}</p><p>required uint64 index = 1;</p><p>optional bytes value = 2;</p><p>repeated Node nodes = 3;</p><p>optional bytes signature = 4;</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>index</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>value</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>nodes</td>
+                  <td><a href="#..Data.Node">.Data.Node</a></td>
+                  <td>repeated</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>signature</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Data.Node">Data.Node</h3>
+        <p></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>index</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>hash</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>size</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Feed">Feed</h3>
+        <p>Type 0. Should be the first message sent on a channel.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>discoveryKey</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>required</td>
+                  <td><p>A BLAKE2b keyed hash of the string 'hypercore' using the public key of
+the metadata register as the key </p></td>
+                </tr>
+              
+                <tr>
+                  <td>nonce</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p>32 bytes of random binary data, used in our encryption scheme </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Handshake">Handshake</h3>
+        <p>Type 1. Overall connection handshake. Should be sent just after the</p><p>Feed message on the first channel only (metadata).</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>id</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p>32 byte random data used as a identifier for this peer on the network,
+useful for checking if you are connected to yourself or another peer
+more than once </p></td>
+                </tr>
+              
+                <tr>
+                  <td>live</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>Whether or not you want to operate in live (continuous) replication mode
+or end after the initial sync. Both ends must agree to keep the
+connection open </p></td>
+                </tr>
+              
+                <tr>
+                  <td>userData</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p>User-specific metadata encoded as a byte sequence </p></td>
+                </tr>
+              
+                <tr>
+                  <td>extensions</td>
+                  <td><a href="#string">string</a></td>
+                  <td>repeated</td>
+                  <td><p>List of extensions that are supported on this Feed </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Have">Have</h3>
+        <p>Type 3. How you tell the other peer what chunks of data you have or don't</p><p>have.</p><p>You should only send Have messages to peers who have expressed interest in</p><p>this region by sending Want messages.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>start</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p>If you only specify start, it means you are telling the other side you
+only have 1 chunk at the position at the value in start </p></td>
+                </tr>
+              
+                <tr>
+                  <td>length</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>If you specify length, you can describe a range of values that you have
+all of, starting from start
+
+
+defaults to 1 </p></td>
+                </tr>
+              
+                <tr>
+                  <td>bitfield</td>
+                  <td><a href="#bytes">bytes</a></td>
+                  <td>optional</td>
+                  <td><p>If you would like to send a range of sparse data about haves/don't haves
+via bitfield, relative to start </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Info">Info</h3>
+        <p>Type 2. Message indicating state changes. Used to indicate whether you are</p><p>uploading and/or downloading.</p><p>Initial state for uploading / downloading is true.</p><p>If both ends are not downloading and not live it is safe to consider</p><p>the stream ended.</p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>uploading</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>downloading</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Request">Request</h3>
+        <p>Type 7. Request a single chunk of data.</p><p>The nodes bitfield is an optional optimization to reduce the amount of duplicate nodes</p><p>exchanged during the replication lifecycle. It indicates which parents you have or don't</p><p>have. You have a maximum of 64 parents you can specify. Because <code>uint64</code> in Protocol Buffers</p><p>is implemented as a <code>varint</code>, over the wire this does not take up 64 bits in most cases.</p><p>The first bit is reserved to signify whether or not you need a signature in response.</p><p>The rest of the bits represent whether or not you have (<code>1</code>) or don't have (<code>0</code>) the</p><p>information at this node already.</p><p>The ordering is determined by walking parent, sibling up the tree all the way to the root.</p><p><pre></p><p>message Request {</p><p>required uint64 index = 1;</p><p>optional uint64 bytes = 2;</p><p>optional bool hash = 3;</p><p>optional uint64 nodes = 4;</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>index</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p>The chunk index for the chunk you want. You should only ask for indexes that you have
+received the <code>Have</code> messages for </p></td>
+                </tr>
+              
+                <tr>
+                  <td>bytes</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>You can also optimistically specify a byte offset, and in the case the remote is able to
+resolve the chunk for this byte offset depending on their Merkle tree state, they will
+ignore the <code>index</code> and send the chunk that resolves for this byte offset instead.
+But if they cannot resolve the byte request, <code>index</code> will be used. </p></td>
+                </tr>
+              
+                <tr>
+                  <td>hash</td>
+                  <td><a href="#bool">bool</a></td>
+                  <td>optional</td>
+                  <td><p>If you only want the hash of the chunk and not the chunk data itself </p></td>
+                </tr>
+              
+                <tr>
+                  <td>nodes</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>A 64 bit long bitfield representing which parent nodes you have </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Unhave">Unhave</h3>
+        <p>Type 4. How you communicate that you deleted or removed a chunk you used to have.</p><p><pre></p><p>message Unhave {</p><p>required uint64 start = 1;</p><p>optional uint64 length = 2 [default = 1];</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>start</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>length</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p> </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Unwant">Unwant</h3>
+        <p>Type 6. How you ask to unsubscribe from <code>Have</code> messages for a region of chunks from the</p><p>other peer. You should only Unwant previously Wanted regions, but if you do <code>Unwant</code></p><p>something that hasn't been Wanted it won't have any effect.</p><p>The <code>length</code> value defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>).</p><p><pre></p><p>message Unwant {</p><p>required uint64 start = 1;</p><p>optional uint64 length = 2;</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>start</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>length</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+        <h3 id=".Want">Want</h3>
+        <p>Type 5. How you ask the other peer to subscribe you to Have messages for a region of chunks.</p><p>'What do we want?' Remote should start sending <code>Have</code> messages in this range.</p><p><pre></p><p>message Want {</p><p>required uint64 start = 1;</p><p>optional uint64 length = 2;</p><p>}</p><p></pre></p>
+
+        
+          <table class="field-table">
+            <thead>
+              <tr><td>Field</td><td>Type</td><td>Label</td><td>Description</td></tr>
+            </thead>
+            <tbody>
+              
+                <tr>
+                  <td>start</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>required</td>
+                  <td><p> </p></td>
+                </tr>
+              
+                <tr>
+                  <td>length</td>
+                  <td><a href="#uint64">uint64</a></td>
+                  <td>optional</td>
+                  <td><p>Defaults to <code>Infinity</code> or <code>feed.length</code> (if not <code>live</code>) </p></td>
+                </tr>
+              
+            </tbody>
+          </table>
+        
+
+        
+      
+
+      
+
+      
+
+      
+    
+
+    <h2 id="scalar-value-types">Scalar Value Types</h2>
+    <table class="scalar-value-types-table">
+      <thead>
+        <tr><td>.proto Type</td><td>Notes</td><td>C++ Type</td><td>Java Type</td><td>Python Type</td></tr>
+      </thead>
+      <tbody>
+        
+          <tr id="double">
+            <td>double</td>
+            <td></td>
+            <td>double</td>
+            <td>double</td>
+            <td>float</td>
+          </tr>
+        
+          <tr id="float">
+            <td>float</td>
+            <td></td>
+            <td>float</td>
+            <td>float</td>
+            <td>float</td>
+          </tr>
+        
+          <tr id="int32">
+            <td>int32</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint32 instead.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+          </tr>
+        
+          <tr id="int64">
+            <td>int64</td>
+            <td>Uses variable-length encoding. Inefficient for encoding negative numbers – if your field is likely to have negative values, use sint64 instead.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="uint32">
+            <td>uint32</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="uint64">
+            <td>uint64</td>
+            <td>Uses variable-length encoding.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="sint32">
+            <td>sint32</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int32s.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+          </tr>
+        
+          <tr id="sint64">
+            <td>sint64</td>
+            <td>Uses variable-length encoding. Signed int value. These more efficiently encode negative numbers than regular int64s.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="fixed32">
+            <td>fixed32</td>
+            <td>Always four bytes. More efficient than uint32 if values are often greater than 2^28.</td>
+            <td>uint32</td>
+            <td>int</td>
+            <td>int</td>
+          </tr>
+        
+          <tr id="fixed64">
+            <td>fixed64</td>
+            <td>Always eight bytes. More efficient than uint64 if values are often greater than 2^56.</td>
+            <td>uint64</td>
+            <td>long</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="sfixed32">
+            <td>sfixed32</td>
+            <td>Always four bytes.</td>
+            <td>int32</td>
+            <td>int</td>
+            <td>int</td>
+          </tr>
+        
+          <tr id="sfixed64">
+            <td>sfixed64</td>
+            <td>Always eight bytes.</td>
+            <td>int64</td>
+            <td>long</td>
+            <td>int/long</td>
+          </tr>
+        
+          <tr id="bool">
+            <td>bool</td>
+            <td></td>
+            <td>bool</td>
+            <td>boolean</td>
+            <td>boolean</td>
+          </tr>
+        
+          <tr id="string">
+            <td>string</td>
+            <td>A string must always contain UTF-8 encoded or 7-bit ASCII text.</td>
+            <td>string</td>
+            <td>String</td>
+            <td>str/unicode</td>
+          </tr>
+        
+          <tr id="bytes">
+            <td>bytes</td>
+            <td>May contain any arbitrary sequence of bytes.</td>
+            <td>string</td>
+            <td>ByteString</td>
+            <td>str</td>
+          </tr>
+        
+      </tbody>
+    </table>
+  </body>
+</html>
+
