@@ -1,8 +1,8 @@
 # hypercore-protocol
 
-Stream that implements the [hypercore](https://github.com/mafintosh/hypercore) protocol
+Examples use the [hypercore](https://github.com/mafintosh/hypercore) protocol buffers specification.
 
-[![build status](https://travis-ci.org/aschrijver/hypercore-protocol.svg?branch=master)](https://travis-ci.org/aschrijver/hypercore-protocol)
+[![build status](https://travis-ci.org/aschrijver/protoc-gen-doc-example.svg?branch=master)](https://travis-ci.org/aschrijver/protoc-gen-doc-example)
 
 ## Note
 
@@ -18,7 +18,7 @@ For the **_real thing_** go to original [hypercore-protocol](https://github.com/
 
 Versions:
 
-- protoc-gen-doc `alpha_go-port`
+- protoc-gen-doc `1.0.0-rc`
 
 
 ### HTML from build-in template
@@ -138,6 +138,11 @@ deploy:
     node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
 
 ```
+
+### Installation and configuration
+
+- Create a personal access token in Github and configure it as environment variable in TravisCI
+  - See TravisCI documentation here: [Github Pages Deployment](https://docs.travis-ci.com/user/deployment/pages/)
 
 ## Conclusion
 
