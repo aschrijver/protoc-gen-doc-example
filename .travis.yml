@@ -24,4 +24,3 @@ deploy:
   github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard (see README)
   on:
     all_branches: true        # Could be set to 'branch: master' in production
-    node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
