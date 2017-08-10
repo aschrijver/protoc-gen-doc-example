@@ -1,4 +1,4 @@
-# hypercore-protocol
+# Protocol buffers documentation generation with TravisCI
 
 Examples use the [hypercore](https://github.com/mafintosh/hypercore) protocol buffers specification.
 
@@ -106,26 +106,19 @@ sudo: required
 services:
   - docker
 
-before_install:
-  # (PS A bit lazy here, this should really be in a separate script invoked from the yaml)
+language: bash
 
+before_script:
   # Create directory structure, copy files
   - mkdir build && mkdir build/html
   - cp docgen/stylesheet.css build/html
 
+script:
   # Create all flavours of output formats to test (see README)
   - docker run --rm -v $(pwd)/build:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
   - docker run --rm -v $(pwd)/build/html:/out -v $(pwd)/schemas/html:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-html.tmpl,inline-html-comments.html protos/HypercoreSpecV1_html.proto
   - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
   - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md protos/HypercoreSpecV1_md.proto
-
-language: node_js
-
-node_js:
-  - "6"
-  - "4"
-  - "0.12"
-  - "0.10"
 
 deploy:
   provider: pages
@@ -135,7 +128,6 @@ deploy:
   github_token: $GITHUB_TOKEN # Set in travis-ci.org dashboard (see README)
   on:
     all_branches: true        # Could be set to 'branch: master' in production
-    node: '6'                 # Needs only to run once. In this case when Node 6 tests have passed
 
 ```
 
