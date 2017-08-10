@@ -1,6 +1,6 @@
 # Protocol buffers documentation generation with TravisCI
 
-Examples use the [hypercore](https://github.com/mafintosh/hypercore) protocol buffers specification.
+Examples use the [hypercore-protocol](https://github.com/mafintosh/hypercore-protocol) Protocol Buffers specification.
 
 [![build status](https://travis-ci.org/aschrijver/protoc-gen-doc-example.svg?branch=master)](https://travis-ci.org/aschrijver/protoc-gen-doc-example)
 
@@ -10,9 +10,7 @@ Examples use the [hypercore](https://github.com/mafintosh/hypercore) protocol bu
 using [protoc-gen-doc](https://github.com/pseudomuto/protoc-gen-doc), and to provide examples/instruction for users, 
 plus to demonstrate some existing bugs in the generator.
 
-**The most complete documentation can be found in the markdown examples**
-
-For the **_real thing_** go to original [hypercore-protocol](https://github.com/mafintosh/hypercore-protocol) github repo.
+_The most complete documentation can be found in the markdown examples_
 
 ## Documentation generation
 
@@ -25,11 +23,11 @@ Versions:
 
 Invoking `protoc-gen-doc` the standard way on [schema.proto](schema.proto):
 ```sh
-  docker run --rm -v $(pwd)/build:/out -v $(pwd):/protos:ro pseudomuto/protoc-gen-doc
+  docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/html:/protos:ro pseudomuto/protoc-gen-doc
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/index.html))
+- [Hypercore Protocol v1.0](https://aschrijver.github.io/protoc-gen-doc-example/) specification ([source](https://github.com/aschrijver/protoc-gen-doc-example/blob/gh-pages/index.html))
 
 _Pro's_:
 - Multi-format support. Works for all formats
@@ -48,7 +46,7 @@ Using [custom-html.tmpl](docgen/custom-html.tmpl) on schema [HypercoreSpecV1_htm
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://aschrijver.github.io/hypercore-protocol/html/inline-html-comments.html) specification ([source](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/html/inline-html-comments.html))
+- [Hypercore Protocol v1.0](https://aschrijver.github.io/protoc-gen-doc-example/html/inline-html-comments.html) specification ([source](https://github.com/aschrijver/protoc-gen-doc-example/blob/gh-pages/html/inline-html-comments.html))
 
 _Pro's_:
 - Supports bold, italic, line-breaks, code snippets within a description
@@ -56,7 +54,6 @@ _Pro's_:
 _Con's_:
 - HTML-only format support. Other formats will be polluted with html tags
 - Need to escape html characters that are part of the text, using `&lt;`, `&gt;`, etc.
-- Not currently a viable option: [Field information not rendered with custom html.mustache templates](https://github.com/pseudomuto/protoc-gen-doc/issues/300)
 
 ### Build-in markdown template with inline markdown formatting
 
@@ -66,7 +63,7 @@ Invoking for markdown generation on schema [HypercoreSpecV1_md.proto](schemas/md
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol.md)
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/protoc-gen-doc-example/blob/gh-pages/hypercore-protocol.md)
 
 _Pro's_
 - All inlne markdown commands are passed through to the output, allowing rich formatting
@@ -86,7 +83,7 @@ Invoking with [custom-markdown.tmpl](docgen/custom-markdown.tmpl) template:
 ```
 
 Generates this output:
-- [Hypercore Protocol v1.0](https://github.com/aschrijver/hypercore-protocol/blob/gh-pages/hypercore-protocol_custom-template.md)
+- [Hypercore Protocol v1.0](https://github.com/aschrijver/protoc-gen-doc-example/blob/gh-pages/hypercore-protocol_custom-template.md)
 
 _Pro's_
 - Can fully customize the markdown output
