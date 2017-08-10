@@ -16,14 +16,6 @@ before_install:
   - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro pseudomuto/protoc-gen-doc --doc_opt=markdown,hypercore-protocol.md
   - docker run --rm -v $(pwd)/build:/out -v $(pwd)/schemas/md:/protos:ro -v $(pwd)/docgen:/templates:ro pseudomuto/protoc-gen-doc --doc_opt=/templates/custom-markdown.tmpl,hypercore-protocol_custom-template.md protos/HypercoreSpecV1_md.proto
 
-language: node_js
-
-node_js:
-  - "6"
-  - "4"
-  - "0.12"
-  - "0.10"
-
 deploy:
   provider: pages
   skip_cleanup: true          # Do not forget, or the whole gh-pages branch is cleaned
